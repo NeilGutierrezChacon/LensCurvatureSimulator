@@ -4,7 +4,6 @@ phases:
   install:
     commands:
       - n 19.9.0
-      - npm i npm@9.6.3 -g
       - pip install --upgrade pip
       - pip install --upgrade awscli
   pre_build:
