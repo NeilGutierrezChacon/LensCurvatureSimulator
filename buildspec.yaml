@@ -5,7 +5,7 @@ phases:
     commands:
       - n 19.9.0
       - node --version
-      - npm i npm@10.2.5 -g
+      - npm i npm@latest -g
       - npm --version
       - pip install --upgrade pip
       - pip install --upgrade awscli
