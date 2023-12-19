@@ -4,7 +4,6 @@ phases:
   install:
     commands:
       - n 19.9.0
-      - node --version
       - npm i npm@latest -g
       - npm --version
       - pip install --upgrade pip
