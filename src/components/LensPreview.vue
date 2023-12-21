@@ -30,18 +30,11 @@
 import { computed, ref } from 'vue';
 
 export default {
-    setup(props) {
-
-        // const f = computed(() => ((props.n - 1) * ((1 / props.r1) - (1 / props.r2) + ((props.n - 1) * props.d / (props.n * props.r1 * props.r2)))) / 1);
-        // const f = computed(() => (1 / ((props.n - 1) * ((1 / props.r1) - (1 / props.r2)) + ((props.n - 1 * props.d) / (props.n * props.r1 * props.r2)))));
-        const f = computed(() => (1 / ((props.n - 1) * ((1 / props.r1) - (1 / props.r2)) + (((props.n - 1) * props.d) / (props.n * props.r1 * props.r2)))));
-        // const f = computed(() => props.n - 1);
-        console.log(f)
-        return {
-            f
-        }
-    },
     props: {
+        f: {
+            type: Number,
+            required: true
+        },
         n: {
             type: Number,
             required: true
@@ -57,11 +50,6 @@ export default {
         d: {
             type: Number,
             required: true
-        }
-    },
-    methods: {
-        calculateFocalLengthWithLensmakerEquation() {
-            return ((this.n - 1) * ((1 / this.r1) - (1 / this.r2) + ((this.n - 1) * this.d / (this.n * this.r1 * this.r2)))) / 1;
         }
     }
 }

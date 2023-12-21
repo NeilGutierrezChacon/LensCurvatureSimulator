@@ -1,6 +1,8 @@
 <script lang="ts">
 import LensPreview from '../components/LensPreview.vue'
 import { reactive, ref } from 'vue';
+import { useAuthStore } from '../stores/authStore';
+import { usePageStore } from '../stores/pageStore';
 
 export default {
 
@@ -20,24 +22,83 @@ export default {
             r2: -20,
             d: 10,
         });
-        // expose to template and other options API hooks
         return {
             lensmakerForm,
             defaultLensmakerForm
         }
     },
 
+    computed: {
+        idToken() {
+            return useAuthStore().idToken;
+        },
+        f() {
+            return this.calculateFocalLengthWithLensmakerEquation(this.lensmakerForm);
+        }
+    },
     methods: {
         reset() {
             this.lensmakerForm.n = this.defaultLensmakerForm.n;
             this.lensmakerForm.r1 = this.defaultLensmakerForm.r1;
             this.lensmakerForm.r2 = this.defaultLensmakerForm.r2;
             this.lensmakerForm.d = this.defaultLensmakerForm.d;
+        },
+
+        getCurrentDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        },
+
+        calculateFocalLengthWithLensmakerEquation(props: any) {
+            if (props.n == 1) {
+                return (1 / (((1 / props.r1) - (1 / props.r2)) + ((props.d) / (props.r1 * props.r2))));
+            }
+            return (1 / ((props.n - 1) * ((1 / props.r1) - (1 / props.r2)) + (((props.n - 1) * props.d) / (props.n * props.r1 * props.r2))));
+        },
+
+        async saveParameters() {
+            try {
+
+                usePageStore().setIsLoading(true);
+
+                const apiUrl = `${import.meta.env.VITE_APP_API_URL}/saveParameters`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.idToken}`
+                    },
+                    body: JSON.stringify({ ...this.lensmakerForm, f: this.f, createdAt: this.getCurrentDateTime() }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la petición: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+            } catch (error) {
+                console.error('Error en la función logIn:', error);
+                throw error;
+            } finally {
+                usePageStore().setIsLoading(false);
+            }
         }
     },
 
     mounted() {
-
+        if (!useAuthStore().isAuthorized()) {
+            this.$router.push("/log-in");
+        }
     }
 }
 
@@ -58,7 +119,8 @@ export default {
             <div class="row">
                 <div class="col-md-3"></div>
                 <div class="col-md-6">
-                    <LensPreview :n="lensmakerForm.n" :r1="lensmakerForm.r1" :r2="lensmakerForm.r2" :d="lensmakerForm.d" />
+                    <LensPreview :f="f" :n="lensmakerForm.n" :r1="lensmakerForm.r1" :r2="lensmakerForm.r2"
+                        :d="lensmakerForm.d" />
                 </div>
                 <div class="col-md-3"></div>
             </div>
@@ -86,7 +148,7 @@ export default {
                     </div>
 
                     <div class="mb-1">
-                        <button class="btn btn-primary w-100" type="button">
+                        <button class="btn btn-primary w-100" type="button" @click="saveParameters()">
                             Save
                         </button>
                     </div>
