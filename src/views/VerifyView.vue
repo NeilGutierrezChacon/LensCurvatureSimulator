@@ -11,8 +11,13 @@ export default {
     },
     setup() {
 
+        interface VerifyForm {
+            email: string | null | any;
+            verificationCode: string | null;
+        }
 
-        const verifyForm = reactive({
+
+        const verifyForm = reactive<VerifyForm>({
             email: null,
             verificationCode: null
         });
@@ -74,7 +79,10 @@ export default {
             this.$router.push("/simulator");
         }
 
-        this.verifyForm.email = this.getEmailFromQuery()
+        const emailQueryParam = this.$route.query.email;
+        if (emailQueryParam !== undefined) {
+            this.verifyForm.email = emailQueryParam;
+        }
     }
 }
 

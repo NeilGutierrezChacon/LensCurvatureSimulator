@@ -8,7 +8,7 @@
             </thead>
             <tbody>
                 <tr v-for="(item, rowIndex) in items" :key="rowIndex">
-                    <td v-for="(value, colIndex) in headers" :key="colIndex">{{ item[value] }}</td>
+                    <td v-for="(header, colIndex) in headers" :key="colIndex">{{ item[header] }}</td>
                 </tr>
             </tbody>
         </table>
@@ -20,11 +20,11 @@
 export default {
     props: {
         items: {
-            type: Array,
+            type: Array<any>,
             required: true,
         },
         headers: {
-            type: Array,
+            type: Array<string>,
             required: true,
         },
     },
